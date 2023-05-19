@@ -1,6 +1,9 @@
 import Email from "../model/email.js";
 
+
+
 export const saveSendEmails = async (request, response) => {
+   
     try {
         const email = await new Email(request.body);
         email.save();
@@ -12,19 +15,26 @@ export const saveSendEmails = async (request, response) => {
 }
 
 export const getEmails = async (request, response) => {
+    // const {email}= request.body;
+    //const {email}= email;
+    const email = request.header("email");
     try {
+         const data1= request.body;
+         
+        //  console.log(email)
         let emails;
 
         if (request.params.type === 'starred') {
-            emails = await Email.find({ starred: true, bin: false });
+            emails = await Email.find({ starred: true, bin: false, to:`${email}`});
         } else if (request.params.type === 'bin') {
-            emails = await Email.find({ bin: true })
-        } else if (request.params.type === 'allmail') {
-            emails = await Email.find({});
+            emails = await Email.find({ bin: true, from:`${email}` })
+        // } else if (request.params.type === 'allmail') {
+        //     emails = await Email.find({(to:`${email}`|| from:`${email}`)});
         } else if (request.params.type === 'inbox') {
-            emails = [];
+            // emails = [];
+            emails = await Email.find({to:`${email}` })
         } else {
-            emails = await Email.find({ type: request.params.type });
+            emails = await Email.find({ type: request.params.type, from:`${email}`});
         }
 
         response.status(200).json(emails);
